@@ -2,9 +2,9 @@ This is a UniqueStudio Project.
 
 
 Key words:
-- mediaplayer
+- mediaPlayer
 - recyclerview
-- snaphelpe
+- pagerSnapHelper
 - room 
 - database
 - exoplayer
