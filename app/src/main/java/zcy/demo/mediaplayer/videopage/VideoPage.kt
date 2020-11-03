@@ -39,9 +39,10 @@ class VideoPage : Fragment() {
         binding.videoRecyclerView.adapter = videoAdapter
 
         val videos = ArrayList<VideoInfo>()
-        videos.add(VideoInfo("0", R.drawable.p1))
-        videos.add(VideoInfo("1", R.drawable.p2))
-        videos.add(VideoInfo("2", R.drawable.p3))
+        videos.add(VideoInfo("0", R.drawable.pic1))
+        videos.add(VideoInfo("1", R.drawable.pic2))
+        videos.add(VideoInfo("2", R.drawable.pic3))
+        videos.add(VideoInfo("3", R.drawable.pic4))
 
         for (item in videos){
             Log.d(TAG, "onCreateView: "+ item.videoId)
