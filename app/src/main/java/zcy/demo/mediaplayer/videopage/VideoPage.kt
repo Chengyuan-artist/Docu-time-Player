@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.PagerSnapHelper
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPageFragmentBinding
@@ -22,6 +23,7 @@ class VideoPage : Fragment() {
     private lateinit var binding: VideoPageFragmentBinding
     private lateinit var viewModel: VideoPageViewModel
     private lateinit var videoAdapter: VideoAdapter
+    private lateinit var pagerSnapHelper: PagerSnapHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,10 @@ class VideoPage : Fragment() {
 
         videoAdapter = VideoAdapter()
         binding.videoRecyclerView.adapter = videoAdapter
+
+        pagerSnapHelper = PagerSnapHelper()
+
+        pagerSnapHelper.attachToRecyclerView(binding.videoRecyclerView)
 
         val videos = ArrayList<VideoInfo>()
         videos.add(VideoInfo("0", R.drawable.pic1))
