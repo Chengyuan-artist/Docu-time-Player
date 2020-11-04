@@ -6,12 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.exoplayer2.SimpleExoPlayer
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPlayViewBinding
 
 
-class VideoAdapter : ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCallback()){
+class VideoAdapter(private var player: SimpleExoPlayer) : ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCallback()){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
@@ -19,16 +20,16 @@ class VideoAdapter : ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCa
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bind(item, player)
     }
 
     class ViewHolder private constructor(private val binding:VideoPlayViewBinding):
         RecyclerView.ViewHolder(binding.root){
 
-            fun bind(item: VideoInfo){
+            fun bind(item: VideoInfo, player: SimpleExoPlayer){
                 binding.videoInfo = item
-                binding.imageView.setImageResource(item.videoUri)
-                binding.executePendingBindings()
+                binding.playerView.player = player
+
             }
 
             companion object{

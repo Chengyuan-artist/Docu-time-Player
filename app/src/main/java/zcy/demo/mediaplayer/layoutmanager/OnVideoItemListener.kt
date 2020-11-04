@@ -1,4 +1,7 @@
 package zcy.demo.mediaplayer.layoutmanager
 
-interface OnVideoItemLisener {
+
+interface OnVideoItemListener {
+
+    fun onCurrentItem(position: Int?)
 }

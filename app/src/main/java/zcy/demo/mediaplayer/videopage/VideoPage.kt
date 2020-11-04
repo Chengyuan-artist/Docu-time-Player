@@ -1,5 +1,6 @@
 package zcy.demo.mediaplayer.videopage
 
+import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
@@ -8,10 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.PagerSnapHelper
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.SimpleExoPlayer
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPageFragmentBinding
+import zcy.demo.mediaplayer.layoutmanager.OnVideoItemListener
+import zcy.demo.mediaplayer.layoutmanager.VideoItemManager
 
 class VideoPage : Fragment() {
 
@@ -23,7 +27,9 @@ class VideoPage : Fragment() {
     private lateinit var binding: VideoPageFragmentBinding
     private lateinit var viewModel: VideoPageViewModel
     private lateinit var videoAdapter: VideoAdapter
-    private lateinit var pagerSnapHelper: PagerSnapHelper
+
+    private lateinit var videoItemManager: VideoItemManager
+    private lateinit var player: SimpleExoPlayer
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,32 +43,41 @@ class VideoPage : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        videoAdapter = VideoAdapter()
+        videoItemManager = VideoItemManager(context)
+        binding.videoRecyclerView.layoutManager = videoItemManager
+
+        player = SimpleExoPlayer.Builder(requireContext()).build()
+
+        videoAdapter = VideoAdapter(player)
+
         binding.videoRecyclerView.adapter = videoAdapter
 
-        pagerSnapHelper = PagerSnapHelper()
+        val videoInfos = ArrayList<VideoInfo>()
 
-        pagerSnapHelper.attachToRecyclerView(binding.videoRecyclerView)
 
-        val videos = ArrayList<VideoInfo>()
-        videos.add(VideoInfo("0", R.drawable.pic1))
-        videos.add(VideoInfo("1", R.drawable.pic2))
-        videos.add(VideoInfo("2", R.drawable.pic3))
-        videos.add(VideoInfo("3", R.drawable.pic4))
+        videoItemManager.setOnVideoItemListener(object :OnVideoItemListener{
+            override fun onCurrentItem(position: Int?) {
+                val mediaItem = MediaItem.fromUri(videoInfos[position!!].uri)
+                player.setMediaItem(mediaItem)
+                player.play()
+            }
+        })
+        
 
-        for (item in videos){
-            Log.d(TAG, "onCreateView: "+ item.videoId)
-        }
 
-        videoAdapter.submitList(videos)
+
+
+        videoAdapter.submitList(videoInfos)
 
         return binding.root
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        viewModel = ViewModelProvider(this).get(VideoPageViewModel::class.java)
-//        // TODO: Use the ViewModel
-//    }
+
+    fun transToUri(x :String) : String{
+        return Uri.parse("android.resource://" + requireContext().packageName + "/" + x).toString()
+    }
+
+
 
 }
+
