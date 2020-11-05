@@ -2,32 +2,34 @@ package zcy.demo.mediaplayer.videopage
 
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.*
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ui.PlayerView
-import zcy.demo.mediaplayer.R
+import com.google.android.exoplayer2.analytics.PlaybackStatsListener
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPlayViewBinding
-import java.math.MathContext
-import kotlin.coroutines.coroutineContext
 
 
 class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCallback()){
 
+    private lateinit var recyclerView: RecyclerView
+    private val pagerSnapHelper = PagerSnapHelper()
+
     companion object{
         val TAG = "VideoAdapter:"
     }
-    private val pagerSnapHelper = PagerSnapHelper()
 
+    private fun getChildCount() = recyclerView.layoutManager!!.itemCount
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-
+        this.recyclerView = recyclerView
         pagerSnapHelper.attachToRecyclerView(recyclerView)
     }
 
@@ -38,6 +40,26 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item)
+
+        val playbackStatsListener = object : Player.EventListener{
+            override fun onPlaybackStateChanged(state: Int) {
+                when(state){
+                    ExoPlayer.STATE_ENDED ->{
+                        if(position < getChildCount()){
+                            recyclerView.layoutManager!!.smoothScrollToPosition(recyclerView,
+                                    RecyclerView.State(),position+1)
+                        }
+                    }
+                    else ->{
+
+                    }
+                }
+            }
+        }
+
+        holder.player.addListener(playbackStatsListener)
+
+
         Log.d(TAG, "onBindViewHolder: bind suc in $position")
     }
 
@@ -54,16 +76,26 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
     class ViewHolder private constructor(private val binding:VideoPlayViewBinding, context: Context):
         RecyclerView.ViewHolder(binding.root){
 
-            private val player = SimpleExoPlayer.Builder(context).build()
+            val player = SimpleExoPlayer.Builder(context).build()
 
             fun bind(item: VideoInfo){
                 binding.playerView.player = player
+
+                binding.playerView.setOnClickListener{
+                    if (player.isPlaying){
+                        player.pause()
+                    }else{
+                        player.play()
+                    }
+                }
+
                 val mediaItem = MediaItem.fromUri(item.uri)
                 player.setMediaItem(mediaItem)
                 player.prepare()
             }
 
             fun play(){
+                player.seekTo(0)
                 player.play()
             }
 
@@ -82,6 +114,8 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
             }
     }
 }
+
+
 
 class VideoDiffCallback : DiffUtil.ItemCallback<VideoInfo>(){
     override fun areItemsTheSame(oldItem: VideoInfo, newItem: VideoInfo): Boolean {

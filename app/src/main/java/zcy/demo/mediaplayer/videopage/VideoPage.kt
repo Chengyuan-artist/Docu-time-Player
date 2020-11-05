@@ -45,7 +45,7 @@ class VideoPage : Fragment() {
 
         val videoInfos = ArrayList<VideoInfo>()
 
-        for (x in 1 until 7){
+        for (x in 1 until 9){
             videoInfos.add(VideoInfo(x, transToUri(pickFile(x))))
         }
 
@@ -69,10 +69,11 @@ class VideoPage : Fragment() {
             2 -> R.raw.v2
             3 -> R.raw.v3
             4 -> R.raw.v4
-            5 -> R.raw.v5
+            5 -> R.raw.v8
             6 -> R.raw.v6
             7 -> R.raw.v7
-            else -> R.raw.v7
+            8 -> R.raw.v5
+            else -> R.raw.v8
         }
     }
 
