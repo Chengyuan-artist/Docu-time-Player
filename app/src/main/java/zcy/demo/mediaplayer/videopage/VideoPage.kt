@@ -9,13 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SimpleExoPlayer
+import androidx.recyclerview.widget.LinearLayoutManager
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPageFragmentBinding
-import zcy.demo.mediaplayer.layoutmanager.OnVideoItemListener
-import zcy.demo.mediaplayer.layoutmanager.VideoItemManager
+
 
 class VideoPage : Fragment() {
 
@@ -27,9 +25,7 @@ class VideoPage : Fragment() {
     private lateinit var binding: VideoPageFragmentBinding
     private lateinit var viewModel: VideoPageViewModel
     private lateinit var videoAdapter: VideoAdapter
-
-    private lateinit var videoItemManager: VideoItemManager
-    private lateinit var player: SimpleExoPlayer
+    private lateinit var layoutManager: LinearLayoutManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,29 +39,19 @@ class VideoPage : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        videoItemManager = VideoItemManager(context)
-        binding.videoRecyclerView.layoutManager = videoItemManager
+        layoutManager = LinearLayoutManager(context)
+        binding.videoRecyclerView.layoutManager = layoutManager
 
-        player = SimpleExoPlayer.Builder(requireContext()).build()
-
-        videoAdapter = VideoAdapter(player)
-
-        binding.videoRecyclerView.adapter = videoAdapter
 
         val videoInfos = ArrayList<VideoInfo>()
 
+        for (x in 1 until 7){
+            videoInfos.add(VideoInfo(x, transToUri(pickFile(x))))
+        }
 
-        videoItemManager.setOnVideoItemListener(object :OnVideoItemListener{
-            override fun onCurrentItem(position: Int?) {
-                val mediaItem = MediaItem.fromUri(videoInfos[position!!].uri)
-                player.setMediaItem(mediaItem)
-                player.play()
-            }
-        })
-        
+        videoAdapter = VideoAdapter(requireContext())
 
-
-
+        binding.videoRecyclerView.adapter = videoAdapter
 
         videoAdapter.submitList(videoInfos)
 
@@ -73,10 +59,22 @@ class VideoPage : Fragment() {
     }
 
 
-    fun transToUri(x :String) : String{
-        return Uri.parse("android.resource://" + requireContext().packageName + "/" + x).toString()
+    fun transToUri(x :Int) : Uri{
+        return Uri.parse("android.resource://" + requireContext().packageName + "/" + x)
     }
 
+    fun pickFile(x : Int) : Int{
+        return when(x){
+            1 -> R.raw.v1
+            2 -> R.raw.v2
+            3 -> R.raw.v3
+            4 -> R.raw.v4
+            5 -> R.raw.v5
+            6 -> R.raw.v6
+            7 -> R.raw.v7
+            else -> R.raw.v7
+        }
+    }
 
 
 }
