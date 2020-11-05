@@ -1,5 +1,6 @@
 package zcy.demo.mediaplayer.videopage
 
+import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
@@ -8,10 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPageFragmentBinding
+
 
 class VideoPage : Fragment() {
 
@@ -23,7 +25,7 @@ class VideoPage : Fragment() {
     private lateinit var binding: VideoPageFragmentBinding
     private lateinit var viewModel: VideoPageViewModel
     private lateinit var videoAdapter: VideoAdapter
-    private lateinit var pagerSnapHelper: PagerSnapHelper
+    private lateinit var layoutManager: LinearLayoutManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,32 +39,44 @@ class VideoPage : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        videoAdapter = VideoAdapter()
-        binding.videoRecyclerView.adapter = videoAdapter
+        layoutManager = LinearLayoutManager(context)
+        binding.videoRecyclerView.layoutManager = layoutManager
 
-        pagerSnapHelper = PagerSnapHelper()
 
-        pagerSnapHelper.attachToRecyclerView(binding.videoRecyclerView)
+        val videoInfos = ArrayList<VideoInfo>()
 
-        val videos = ArrayList<VideoInfo>()
-        videos.add(VideoInfo("0", R.drawable.pic1))
-        videos.add(VideoInfo("1", R.drawable.pic2))
-        videos.add(VideoInfo("2", R.drawable.pic3))
-        videos.add(VideoInfo("3", R.drawable.pic4))
-
-        for (item in videos){
-            Log.d(TAG, "onCreateView: "+ item.videoId)
+        for (x in 1 until 9){
+            videoInfos.add(VideoInfo(x, transToUri(pickFile(x))))
         }
 
-        videoAdapter.submitList(videos)
+        videoAdapter = VideoAdapter(requireContext())
+
+        binding.videoRecyclerView.adapter = videoAdapter
+
+        videoAdapter.submitList(videoInfos)
 
         return binding.root
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        viewModel = ViewModelProvider(this).get(VideoPageViewModel::class.java)
-//        // TODO: Use the ViewModel
-//    }
+
+    fun transToUri(x :Int) : Uri{
+        return Uri.parse("android.resource://" + requireContext().packageName + "/" + x)
+    }
+
+    fun pickFile(x : Int) : Int{
+        return when(x){
+            1 -> R.raw.v1
+            2 -> R.raw.v2
+            3 -> R.raw.v3
+            4 -> R.raw.v4
+            5 -> R.raw.v8
+            6 -> R.raw.v6
+            7 -> R.raw.v7
+            8 -> R.raw.v5
+            else -> R.raw.v8
+        }
+    }
+
 
 }
+

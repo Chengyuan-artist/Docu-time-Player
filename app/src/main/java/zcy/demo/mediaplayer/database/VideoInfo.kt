@@ -1,6 +1,8 @@
 package zcy.demo.mediaplayer.database
 
+import android.net.Uri
+
 data class VideoInfo(
-    var videoId: String,
-    var videoUri: Int
+    var videoId :Int,
+    var uri :Uri
 )
