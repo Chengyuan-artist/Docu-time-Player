@@ -16,12 +16,14 @@ import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.VideoPlayViewBinding
 
 
-class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCallback()){
+class VideoAdapter(private val context: Context, private val beginPos:Long) :
+    ListAdapter<VideoInfo, VideoAdapter.ViewHolder>(VideoDiffCallback()) {
 
     private lateinit var recyclerView: RecyclerView
     private val pagerSnapHelper = PagerSnapHelper()
+    private val linearLayoutManager = LinearLayoutManager(context)
 
-    companion object{
+    companion object {
         val TAG = "VideoAdapter:"
     }
 
@@ -31,6 +33,9 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
         super.onAttachedToRecyclerView(recyclerView)
         this.recyclerView = recyclerView
         pagerSnapHelper.attachToRecyclerView(recyclerView)
+        recyclerView.layoutManager = linearLayoutManager
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -41,16 +46,19 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
         val item = getItem(position)
         holder.bind(item)
 
-        val playbackStatsListener = object : Player.EventListener{
+        Log.d(TAG, "onBindViewHolder: ${getChildCount()}")
+        val playbackStatsListener = object : Player.EventListener {
             override fun onPlaybackStateChanged(state: Int) {
-                when(state){
-                    ExoPlayer.STATE_ENDED ->{
-                        if(position < getChildCount()){
-                            recyclerView.layoutManager!!.smoothScrollToPosition(recyclerView,
-                                    RecyclerView.State(),position+1)
+                when (state) {
+                    ExoPlayer.STATE_ENDED -> {
+                        if (position < getChildCount()) {
+                            recyclerView.layoutManager!!.smoothScrollToPosition(
+                                recyclerView,
+                                RecyclerView.State(), position + 1
+                            )
                         }
                     }
-                    else ->{
+                    else -> {
 
                     }
                 }
@@ -73,51 +81,53 @@ class VideoAdapter(private val context: Context) : ListAdapter<VideoInfo, VideoA
         holder.pause()
     }
 
-    class ViewHolder private constructor(private val binding:VideoPlayViewBinding, context: Context):
-        RecyclerView.ViewHolder(binding.root){
+    class ViewHolder private constructor(
+        private val binding: VideoPlayViewBinding,
+        context: Context
+    ) :
+        RecyclerView.ViewHolder(binding.root) {
 
-            val player = SimpleExoPlayer.Builder(context).build()
+        val player = SimpleExoPlayer.Builder(context).build()
 
-            fun bind(item: VideoInfo){
-                binding.playerView.player = player
+        fun bind(item: VideoInfo) {
+            binding.playerView.player = player
 
-                binding.playerView.setOnClickListener{
-                    if (player.isPlaying){
-                        player.pause()
-                    }else{
-                        player.play()
-                    }
+            binding.playerView.setOnClickListener {
+                if (player.isPlaying) {
+                    player.pause()
+                } else {
+                    player.play()
                 }
-
-                val mediaItem = MediaItem.fromUri(item.uri)
-                player.setMediaItem(mediaItem)
-                player.prepare()
             }
 
-            fun play(){
-                player.seekTo(0)
-                player.play()
+            val mediaItem = MediaItem.fromUri(item.uri)
+            player.setMediaItem(mediaItem)
+            player.prepare()
+        }
+
+        fun play() {
+            player.seekTo(0)
+            player.play()
+        }
+
+        fun pause() {
+            player.pause()
+        }
+
+        companion object {
+
+            fun from(parent: ViewGroup, context: Context): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = VideoPlayViewBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding, context)
             }
 
-            fun pause(){
-                player.pause()
-            }
-
-            companion object{
-
-                fun from(parent: ViewGroup, context: Context):ViewHolder{
-                    val layoutInflater = LayoutInflater.from(parent.context)
-                    val binding = VideoPlayViewBinding.inflate(layoutInflater, parent, false)
-                    return ViewHolder(binding, context)
-                }
-
-            }
+        }
     }
 }
 
 
-
-class VideoDiffCallback : DiffUtil.ItemCallback<VideoInfo>(){
+class VideoDiffCallback : DiffUtil.ItemCallback<VideoInfo>() {
     override fun areItemsTheSame(oldItem: VideoInfo, newItem: VideoInfo): Boolean {
         return oldItem.videoId == newItem.videoId
     }

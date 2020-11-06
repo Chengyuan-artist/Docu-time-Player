@@ -1,11 +1,30 @@
 package zcy.demo.mediaplayer.videopage
 
-import androidx.lifecycle.ViewModel
-import zcy.demo.mediaplayer.R
-import zcy.demo.mediaplayer.database.VideoInfo
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
+import zcy.demo.mediaplayer.database.VideoDatabaseDao
 
-class VideoPageViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+class VideoPageViewModel(private val dataSource: VideoDatabaseDao, application: Application) :
+    AndroidViewModel(application) {
 
+    private val viewModelJob = Job()
+    private val uiScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+
+    val videos = dataSource.getAllVideos()
+
+
+    private suspend fun getVideoList(){
+        return withContext(Dispatchers.IO){
+            dataSource.getAllVideos()
+        }
+    }
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 
 }
