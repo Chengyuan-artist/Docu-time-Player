@@ -3,11 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/videoPage">
+    app:startDestination="@id/listFragment">
 
     <fragment
         android:id="@+id/videoPage"
         android:name="zcy.demo.mediaplayer.videopage.VideoPage"
         android:label="VideoPage"
-        tools:layout="@layout/video_page_fragment"/>
+        tools:layout="@layout/video_page_fragment">
+        <action
+            android:id="@+id/action_videoPage_to_listFragment"
+            app:destination="@id/listFragment" />
+        <argument
+            android:name="videoId"
+            app:argType="long" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="zcy.demo.mediaplayer.list.ListFragment"
+        android:label="ListFragment"
+        tools:layout="@layout/list_fragment">
+        <action
+            android:id="@+id/action_listFragment_to_videoPage"
+            app:destination="@id/videoPage" />
+    </fragment>
 </navigation>
