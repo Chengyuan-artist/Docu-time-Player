@@ -51,7 +51,9 @@ class VideoAdapter(private val context: Context, private val beginPos:Long) :
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     ExoPlayer.STATE_ENDED -> {
-                        if (position < getChildCount()) {
+                        if (position == getChildCount()-1) {
+                            recyclerView.layoutManager!!.scrollToPosition(0)
+                        }else{
                             recyclerView.layoutManager!!.smoothScrollToPosition(
                                 recyclerView,
                                 RecyclerView.State(), position + 1

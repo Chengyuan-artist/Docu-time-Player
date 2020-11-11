@@ -50,12 +50,12 @@ class VideoPage : Fragment() {
 
         viewModel.videos.observe(viewLifecycleOwner, {
             videoAdapter.submitList(it)
+            binding.videoRecyclerView.layoutManager!!.scrollToPosition(args.videoId.toInt() - 1)
         })
 
         Log.d(TAG, "onCreateView: createSuc")
         return binding.root
     }
-
 
 
 }

@@ -57,7 +57,7 @@ class ListFragment : Fragment() {
 
 //        viewModel.resolveTestData(videoInfos)
 
-        itemAdapter = ListItemAdapter(application) { videoId ->
+        itemAdapter = ListItemAdapter(application,requireContext()) { videoId ->
             viewModel.onItemClicked(videoId)
         }
         viewModel.navigateToPlayPage.observe(viewLifecycleOwner, { videoId ->

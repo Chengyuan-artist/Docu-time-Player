@@ -13,12 +13,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import zcy.demo.mediaplayer.R
 import zcy.demo.mediaplayer.database.VideoInfo
 import zcy.demo.mediaplayer.databinding.ListItemViewBinding
 
 class ListItemAdapter(
     private val application: Application,
+    private val context: Context,
     private val clickListener: (VideoId: Long) -> Unit
 ) : ListAdapter<VideoInfo, ListItemAdapter.ViewHolder>(ItemDiffCallback()) {
 
@@ -37,11 +40,8 @@ class ListItemAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item, clickListener)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            holder.binding.imageView.setImageBitmap(loadBitmap(item.uri))
-        } else {
-            holder.binding.imageView.setImageResource(R.drawable.ic_launcher_foreground)
-        }
+        Glide.with(context).load(item.uri).transition(withCrossFade())
+            .into(holder.binding.imageView)
     }
 
     class ViewHolder private constructor(val binding: ListItemViewBinding) :
@@ -49,7 +49,7 @@ class ListItemAdapter(
 
         fun bind(item: VideoInfo, clickListener: (VideoId: Long) -> Unit) {
             binding.textView.text = item.videoName
-            binding.imageView.setOnClickListener{
+            binding.imageView.setOnClickListener {
                 clickListener(item.videoId)
             }
         }
